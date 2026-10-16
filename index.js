@@ -5,23 +5,41 @@ import { dirname } from "path";
 import bodyParser from "body-parser";
 
 const app = express();
-const PORT = 3000;
+const port = 3000;
 
+app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
-app.set("views", path.join(dirname(fileURLToPath(import.meta.url)), "views"));
+
+const blogPosts = [
+  {id: 1, title: "Learning Python"},
+  {id: 2, title: "Cyber Security"},
+
+]
+
+//app.set("views", path.join(dirname(fileURLToPath(import.meta.url)), "views"));
 
 app.get("/", (req, res) => {
-  res.render("index.ejs");
+  res.render("pages/home", { blogPosts });
 });
 
-app.post("/submit", (req, res) => {
-  const { title } = req.body;
-  // Here you would typically save the post to a database
-  res.render("create.ejs", { title });
-});
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get("/pages/:id", (req, res) => {
+  const postId = req.params.id;
+  const post = blogPosts.find(
+    (post) => String(post.id) === postId
+  )
+
+  if (post) {
+    res.render(`pages/post${post.id}`, { post })
+  } else {
+    res.status(404).render(`pages/404`);
+  }
+})
+
+
+
+
+app.listen(port, () => {
+  console.log(`Server is running on port :${port}`);
 }); 
